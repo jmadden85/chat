@@ -30,6 +30,15 @@ io.on('connection', function (socket) {
     });
   });
 
+
+  socket.on('codez', function (data) {
+    socket.broadcast.emit('codez', {
+      code: data
+    });
+    console.log(data);
+  });
+
+
   // when the client emits 'add user', this listens and executes
   socket.on('add user', function (username) {
     // we store the username in the socket session for this client
